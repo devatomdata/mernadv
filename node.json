@@ -64,7 +64,7 @@
         "code": [
           "Nodejs file - server.js",
           "var nodemailer = require('nodemailer');\nvar express =require(\"express\");\nvar bodyParser=require(\"body-parser\");\nvar app=express();\napp.set(\"views\",__dirname+\"/views\");\napp.engine('html',require('ejs').renderFile);\napp.use(bodyParser.json());\napp.use(bodyParser.urlencoded({extended:true}));\napp.set('port',process.env.PORT || 4300);\napp.set('view engine','ejs');\n\napp.get(\"/\",function(req,res){\nres.render(\"main\");\n});\n\n\napp.post(\"/send\",function(req,res){\n  var eid=req.body.emailid;\n  console.log(eid);\n  var transporter = nodemailer.createTransport({\n    service: 'gmail',\n    auth: {\n      user: 'xxxxx@gmail.com',\n      pass: 'xxxxxxx'\n    }\n  });\n\n\n  var mailOptions = {\n    from: 'xxxxxx@gmail.com',\n    to: eid,\n    subject: 'Sending Email using Node.js',\n    html: '<h1>Hey this is DevAtom</h1>.<br> Welcome to our page ! <br> Thanks, for register.<br> <a>click</a> here to verify. '\n  };\n\n  transporter.sendMail(mailOptions, function(error, info){\n    if (error) {\n      console.log(error);\n    } else {\n      console.log('Email sent: ' + info.response);\n    }\n  });\n});\n\n\n\napp.listen(app.get('port'),function(){\n\tconsole.log('Express Server listening on Port '+app.get('port'));\n});",
-          "Get email id - mail.ejs",
+          "Get email id - main.ejs",
           "<form  action=\"/send\" method=\"post\">\n\n    Email Id : <input type=\"email\" name=\"emailid\">\n    <input type=\"submit\" name=\"Send email\" value=\"Send email\">\n    \n    </form>"
         ],
         "output": [
