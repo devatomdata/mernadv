@@ -1,0 +1,87 @@
+[
+  {
+    "": {
+      "code": [
+
+      ],
+      "output": [
+
+      ]
+    }
+  },
+  {
+    "Simple chat Application using socket.io": {
+      "code": [
+        "Html file - (chat.html)",
+        "<!DOCTYPE html>\n<html>\n   <head>\n      <title>Hello world</title>\n   </head>\n\n   <script src = \"/socket.io/socket.io.js\"></script>\n   <script>\n      var socket = io();\n      function setUsername() {\n         socket.emit('setUsername', document.getElementById('name').value);\n      };\n      var user;\n      socket.on('userExists', function(data) {\n         document.getElementById('error-container').innerHTML = data;\n      });\n      socket.on('userSet', function(data) {\n         user = data.username;\n         document.body.innerHTML = '<input type = \"text\" id = \"message\">\\\n         <button type = \"button\" name = \"button\" onclick = \"sendMessage()\">Send</button>\\\n         <div id = \"message-container\"></div>';\n      });\n      function sendMessage() {\n         var msg = document.getElementById('message').value;\n         if(msg) {\n            socket.emit('msg', {message: msg, user: user});\n         }\n      }\n      socket.on('newmsg', function(data) {\n         if(user) {\n            document.getElementById('message-container').innerHTML += '<div><b>' +\n               data.user + '</b>: ' + data.message + '</div>'\n         }\n      })\n   </script>\n\n   <body>\n      <div id = \"error-container\"></div>\n      <input id = \"name\" type = \"text\" name = \"name\" value = \"\"\n         placeholder = \"Enter your name!\">\n      <button type = \"button\" name = \"button\" onclick = \"setUsername()\">\n         Let me chat!\n      </button>\n   </body>\n   </html>",
+        "Nodejs file - (server.js)",
+        "var app=require(\"express\")();\nvar http=require(\"http\").Server(app);\nvar io=require('socket.io')(http);\n\napp.get('/',function(req,res){\n  res.sendfile('chat.html');\n});\n  /*The render method works when you have a templating engine, such as Handlebars or Jade, in use.\nA templating engine is something that parses a given template file and generates HTML output. This is so you can generate an HTML web page depending on some variables in your program.\nSuch templates are often used with ExpressJS when writing applications that have a front-end.\nThe sendfile method, on the other hand, simply sends a given file to the client, regardless of the type and contents of the file.\nSince you are using an HTML file, there is nothing particularly to be parsed by the templating engine. So, the output of render is same as that of sendfile (i.e., the HTML written in the file). Hence, both produce the same result.*/\n\n\nusers=[];\nio.on(\"connection\",function(socket){\n  console.log(\"A user connected\");\n  socket.on('setUsername',function(data){\n    console.log(data);\n    if(users.indexOf(data) > -1) {\n           socket.emit('userExists', data + ' username is taken! Try some other username.');\n        } \n    else{\n      users.push(data);\n      socket.emit(\"userSet\",{username:data});\n    }\n  });\n  socket.on('msg',function(data){\n    io.sockets.emit('newmsg',data);\n  });\n});\n\nhttp.listen(3000,function(){\n  console.log(\"listening at 3000\");\n});"
+      ],
+      "output": [
+        "",
+        "n1.PNG",
+        "",
+        "n2.PNG",
+        "",
+        "n3.PNG",
+        "",
+        "n4.PNG",
+        "",
+        "n5.PNG",
+        "",
+        "n6.PNG"
+      ]
+    }
+  },
+  {
+    "Advance chat application using socket.io": {
+      "code": [
+        "Node file - server.js",
+        "const express = require('express')\nconst app = express()\n\n\n//set the template engine ejs\napp.set('view engine', 'ejs')\n\n//middlewares\napp.use(express.static('public'))\n\n\n//routes\napp.get('/', (req, res) => {\n\tres.render('index')\n})\n\n//Listen on port 3000\nserver = app.listen(3000)\n\n\n\n//socket.io instantiation\nconst io = require(\"socket.io\")(server)\n\n\n//listen on every connection\nio.on('connection', (socket) => {\n\tconsole.log('New user connected')\n\n\t//default username\n\tsocket.username = \"Anonymous\"\n\n    //listen on change_username\n    socket.on('change_username', (data) => {\n        socket.username = data.username\n    })\n\n    //listen on new_message\n    socket.on('new_message', (data) => {\n        //broadcast the new message\n        io.sockets.emit('new_message', {message : data.message, username : socket.username});\n    })\n\n    //listen on typing\n    socket.on('typing', (data) => {\n    \tsocket.broadcast.emit('typing', {username : socket.username})\n    })\n})",
+        "Ejs file - views/index.ejs",
+        "<!DOCTYPE html>\n<html>\n  <head>\n    <meta http-equiv=\"Content-Type\" const=\"text/html;charset=UTF-8\" />\n    <link href=\"http://fonts.googleapis.com/css?family=Comfortaa\" rel=\"stylesheet\" type=\"text/css\">\n    <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" >\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js\"></script>\n    <title>Simple Chat App</title>\n  </head>\n\n  <body>\n    <header>\n      <h1>Super Chat</h1>\n    </header>\n\n    <section>\n      <div id=\"change_username\">\n\t<input id=\"username\" type=\"text\" />\n\t<button id=\"send_username\" type=\"button\">Change username</button>\n      </div>\n    </section>\n\n    <section id=\"chatroom\">\n      <section id=\"feedback\"></section>\n    </section>\n\n    \n\n    <section id=\"input_zone\"> \n      <input id=\"message\" class=\"vertical-align\" type=\"text\" />\n      <button id=\"send_message\" class=\"vertical-align\" type=\"button\">Send</button>\n    </section>\n\n    <script src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n    <script src=\"chat.js\"></script>\n  </body>\n</html>",
+        "Js file - public/chat.js",
+        "\n$(function(){\n    //make connection\n var socket = io.connect('http://localhost:3000')\n\n //buttons and inputs\n var message = $(\"#message\")\n var username = $(\"#username\")\n var send_message = $(\"#send_message\")\n var send_username = $(\"#send_username\")\n var chatroom = $(\"#chatroom\")\n var feedback = $(\"#feedback\")\n\n //Emit message\n send_message.click(function(){\n     socket.emit('new_message', {message : message.val()})\n })\n\n //Listen on new_message\n socket.on(\"new_message\", (data) => {\n     feedback.html('');\n     message.val('');\n     chatroom.append(\"<p class='message'>\" + data.username + \": \" + data.message + \"</p>\")\n })\n\n //Emit a username\n send_username.click(function(){\n     socket.emit('change_username', {username : username.val()})\n })\n\n //Emit typing\n message.on(\"keypress\", () => {\n     socket.emit('typing')\n })\n\n //Listen on typing\n socket.on('typing', (data) => {\n     feedback.html(\"<p><i>\" + data.username + \" is typing a message...\" + \"</i></p>\")\n })\n});\n",
+        "Css file - public/style.css",
+        "@mixin vertical-align {\n    position: relative;\n    top: 50%;\n    -webkit-transform: translateY(-50%);\n    -ms-transform: translateY(-50%);\n    transform: translateY(-50%);\n  }\n  \n  * {\n      box-sizing: border-box;\n  }\n  \n  html {\n      height: 100%;\n  }\n  \n  body {\n      margin: 0px;\n      height: 100%;\n  }\n  \n  header {\n      text-align: center;\n  }\n  \n  h1 {\n      font-family: 'Comfortaa', sans-serif;\n      margin: 0px;\n  }\n  \n  div#change_username, section#input_zone {\n      border: 5px outset #8258FA;\n  }\n  \n  div#change_username {\n      height: 3%;\n      display: inline-block;\n      background-color: #BCA9F5;\n  }\n  \n  section#chatroom {\n      border: 5px inset #8258FA;\n      height: 85%;\n      overflow: auto;\n  }\n  \n  section#input_zone {\n      height: 7%;\n      text-align: center;\n      background-color: #BCA9F5;\n  }\n  \n  .vertical-align {\n      position: relative;\n      top: 50%;\n      -webkit-transform: translateY(-50%);\n      -ms-transform: translateY(-50%);\n      transform: translateY(-50%);\n  }\n  \n  input#username {\n      font-family: 'Comfortaa', sans-serif;\n  }\n  \n  input#message {\n      display: inline-block;\n      width: 88%;\n      height: 70%;\n      font-family: 'Comfortaa', sans-serif;\n      font-size: 2vh;\n  }\n  \n  button#send_message {\n      display: inline-block;\n      height: 70%;\n      width: 10%;\n  }\n  \n  p.message {\n      margin: 0px;\n      width: 100%;\n      height: 40px;\n      font-size: 2vh;\n      font-family: 'Comfortaa', sans-serif;\n      padding: 1vh;\n  }\n  \n  .message:nth-child(even) {\n      background-color: #81DAF5;\n  }\n  \n  .message:nth-child(odd) {\n      background-color: #81BEF7;\n  }"
+      ],
+      "output": [
+        "",
+        "sc1.PNG",
+        "",
+        "sc2.PNG",
+        "",
+        "sc3.PNG",
+        "",
+        "sc4.PNG",
+        "",
+        "sc5.PNG"
+      ],
+      "Sending sms using twillo": {
+        "code": [
+          "Node file - Server.js",
+          "var http = require('http');\nvar express = require('express');\nvar twilio = require('twilio');\nvar app = express();\nvar bodyParser=require('body-parser');\napp.use(bodyParser.json());//support json urlencoded bodies\napp.use(bodyParser.urlencoded({extended:true}));\nvar twilio = require('twilio');\n\n\nvar path=require('path');\napp.set('view engine', 'ejs');\napp.set('views', path.join(__dirname, 'views'));\n\napp.get(\"/\",function(req,res){\n\tres.render(\"index\");\n});\n\n\n\napp.post('/ss', function(req, res) {\n\t console.log(req.body.num);\n  var accountSid = 'AC8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; \n  // Your Account SID from www.twilio.com/console \n  \nvar authToken = 'f9xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';   \n// Your Auth Token from www.twilio.com/console\n\nvar client = new twilio(accountSid, authToken);\n\nclient.messages.create({\n    body: 'Hello how are you?',\n    to: 'XXXXXXXXXXXX',  // Text this number // THIS NUMBER MUST BE VERIFIED FROM YOUR TWILIO ACCOUNT \n    from: 'XXXXXXXXXX' // From a valid Twilio number\n})\n.then((message) => console.log(message.sid));\nres.end();\n});\n\nhttp.createServer(app).listen(8080, function () {\n  console.log(\"Express server listening on port 8080\");\n});",
+          "To Get number - views/index.ejs",
+          "<form action=\"/ss\" method=\"post\">\nEnter number : <input type=number name=num >\n<button id=send type=submit>Send sms</button>\n</form>"
+
+        ],
+        "output": [
+          "",
+          "sms1.PNG"
+        ]
+      },
+      "Node Mailer": {
+        "code": [
+          "Nodejs file - server.js",
+          "var nodemailer = require('nodemailer');\nvar express =require(\"express\");\nvar bodyParser=require(\"body-parser\");\nvar app=express();\napp.set(\"views\",__dirname+\"/views\");\napp.engine('html',require('ejs').renderFile);\napp.use(bodyParser.json());\napp.use(bodyParser.urlencoded({extended:true}));\napp.set('port',process.env.PORT || 4300);\napp.set('view engine','ejs');\n\napp.get(\"/\",function(req,res){\nres.render(\"main\");\n});\n\n\napp.post(\"/send\",function(req,res){\n  var eid=req.body.emailid;\n  console.log(eid);\n  var transporter = nodemailer.createTransport({\n    service: 'gmail',\n    auth: {\n      user: 'xxxxx@gmail.com',\n      pass: 'xxxxxxx'\n    }\n  });\n\n\n  var mailOptions = {\n    from: 'xxxxxx@gmail.com',\n    to: eid,\n    subject: 'Sending Email using Node.js',\n    html: '<h1>Hey this is DevAtom</h1>.<br> Welcome to our page ! <br> Thanks, for register.<br> <a>click</a> here to verify. '\n  };\n\n  transporter.sendMail(mailOptions, function(error, info){\n    if (error) {\n      console.log(error);\n    } else {\n      console.log('Email sent: ' + info.response);\n    }\n  });\n});\n\n\n\napp.listen(app.get('port'),function(){\n\tconsole.log('Express Server listening on Port '+app.get('port'));\n});",
+          "Get email id - mail.ejs",
+          "<form  action=\"/send\" method=\"post\">\n\n    Email Id : <input type=\"email\" name=\"emailid\">\n    <input type=\"submit\" name=\"Send email\" value=\"Send email\">\n    \n    </form>"
+        ],
+        "output": [
+          "",
+          "email1.PNG"
+        ]
+      }
+    }
+  }
+]
