@@ -1,15 +1,6 @@
 [
   {
-    "": {
-      "code": [
 
-      ],
-      "output": [
-
-      ]
-    }
-  },
-  {
     "Simple chat Application using socket.io": {
       "code": [
         "Html file - (chat.html)",
@@ -31,9 +22,7 @@
         "",
         "n6.PNG"
       ]
-    }
-  },
-  {
+    },
     "Advance chat application using socket.io": {
       "code": [
         "Node file - server.js",
@@ -56,7 +45,8 @@
         "sc4.PNG",
         "",
         "sc5.PNG"
-      ],
+      ]
+    },
       "Sending sms using twillo": {
         "code": [
           "Node file - Server.js",
@@ -82,6 +72,6 @@
           "email1.PNG"
         ]
       }
-    }
+
   }
 ]
