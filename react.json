@@ -19,19 +19,19 @@
       ],
       "output": [
         "Simple App Bar",
-        "",
+        "1.png",
         "App Bar with a primary search field",
-        "",
+        "2.png",
         "App Bar with search field",
-        "",
+        "3.png",
         "Bottom App Bar",
-        "",
+        "4.png",
         "App bar hides on scroll down",
-        "",
+        "5.png",
         "App bar elevates on scroll",
-        "",
+        "6.png",
         "Back to top button",
-        ""
+        "7.png"
       ]
     }
   }
