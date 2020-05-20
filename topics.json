@@ -2,7 +2,10 @@
   {
     "name": "Advance of NodeJs",
     "topics": [
-      "Authentication"
+      "Simple chat Application using socket.io",
+      "Advance chat application using socket.io",
+      "Sending sms using twillo",
+      "Node Mailer"
     ]
   },
   {
